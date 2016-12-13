@@ -39,7 +39,7 @@ function init() {
 }
 
 function addLights() {
-  var ambientLight = new THREE.AmbientLight( 0x000000 );
+  var ambientLight = new THREE.AmbientLight( 0xffffff, 0.6 );
   scene.add( ambientLight );
 
   var lights = [];
@@ -47,21 +47,21 @@ function addLights() {
   lights[ 1 ] = new THREE.PointLight( 0xffffff, 1, 0 );
   lights[ 2 ] = new THREE.PointLight( 0xffffff, 1, 0 );
   lights[ 0 ].position.set( 0, 0, 144 );
-  lights[ 1 ].position.set( 0, 180, 144 );
-  lights[ 2 ].position.set( 0, - 180, 144 );
+  lights[ 1 ].position.set( 0, 140, 144 );
+  lights[ 2 ].position.set( 0, - 140, 144 );
   scene.add( lights[ 0 ] );
   scene.add( lights[ 1 ] );
   scene.add( lights[ 2 ] );
 
-  var geometry = new THREE.CylinderGeometry( 10, 10, 2, 32 );
+  var geometry = new THREE.CylinderGeometry( 15, 15, 2, 32 );
   var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
   var cylinder = new THREE.Mesh( geometry, material );
   cylinder.rotation.set(Math.PI/2,0,0);
   cylinder.position.set( 0, 0, 144 );
   var cylinder2 = cylinder.clone();
-  cylinder2.position.set( 0, 180, 144 );
+  cylinder2.position.set( 0, 140, 144 );
   var cylinder3 = cylinder.clone();
-  cylinder3.position.set( 0, -180, 144 );
+  cylinder3.position.set( 0, -140, 144 );
 
   scene.add( cylinder );
   scene.add( cylinder2 );
