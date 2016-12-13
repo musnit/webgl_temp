@@ -2,7 +2,7 @@ module.exports = {
     entry: "./src/index.js",
     output: {
         path: __dirname,
-        filename: "build/bundle.js"
+        filename: "bundle.js"
     },
     module: {
         loaders: [
@@ -17,7 +17,14 @@ module.exports = {
             },
             { test: /\.(glsl|frag|vert)$/, loader: 'raw', exclude: /node_modules/ },
             { test: /\.(glsl|frag|vert)$/, loader: 'glslify', exclude: /node_modules/ },
-            { test: /\.json$/, loader: 'json', exclude: /node_modules/ }
+            { test: /\.json$/, loader: 'json', exclude: /node_modules/ },
+            {
+              test: /\.(jpe?g|png|gif|svg)$/i,
+              loaders: [
+                  'file?hash=sha512&digest=hex&name=[hash].[ext]',
+                  'image-webpack?bypassOnDebug&optimizationLevel=7&interlaced=false'
+              ]
+          }
         ]
     }
 };

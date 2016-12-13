@@ -6,6 +6,20 @@ console.log(piecesModel.geometries);
 var scene, camera, renderer;
 var geometry, material, mesh;
 var pieceMeshes = [];
+var basicReflectionMaterial, phongReflectionMaterial, phongMaterial;
+var currentMaterial;
+var currentMaterialId;
+var materials;
+
+var urls = [
+      'images/pos-x.png',
+      'images/neg-x.png',
+      'images/pos-y.png',
+      'images/neg-y.png',
+      'images/pos-z.png',
+      'images/neg-z.png'
+    ];
+
 
 window.onload = function() {
   init();
@@ -14,28 +28,79 @@ window.onload = function() {
   loadModel();
 };
 
+window.onkeypress = (event) => {
+  if(event.key === 'Enter'){
+    onPress();
+  }
+}
+
 function init() {
 
     scene = new THREE.Scene();
-    scene.background = new THREE.Color( 0x3e3e3e );
+    //scene.background = new THREE.Color( 0x3e3e3e );
 
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
     camera.position.z = 1000;
-    camera.position.set(0, 0, -350)
+    camera.position.set(0, 0, -400)
     camera.lookAt(new THREE.Vector3())
 
     var controls = new OrbitControls(camera)
 
-    renderer = new THREE.WebGLRenderer();
+    renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize( window.innerWidth, window.innerHeight );
 
     document.body.appendChild( renderer.domElement );
 
-    var geometry = new THREE.BoxBufferGeometry( 200, 400, 10 );
+    var geometry = new THREE.BoxBufferGeometry( 200, 10, 400 );
     var material = new THREE.MeshBasicMaterial({ color: 0x7d7d7d });
     mesh = new THREE.Mesh( geometry, material );
-    mesh.position.z += 150;
+    mesh.position.y += 150;
     scene.add( mesh );
+
+    // wrap it up into the object that we need
+    var cubemap = THREE.ImageUtils.loadTextureCube(urls, THREE.CubeRefractionMapping);
+
+    // set the format, likely RGB
+    // unless you've gone crazy
+    cubemap.format = THREE.RGBFormat;
+
+    // following code from https://github.com/mrdoob/three.js/blob/master/examples/webgl_materials_cubemap.html
+    var shader = THREE.ShaderLib[ "cube" ];
+    shader.uniforms[ "tCube" ].value = cubemap;
+
+    var material = new THREE.ShaderMaterial( {
+
+      fragmentShader: shader.fragmentShader,
+      vertexShader: shader.vertexShader,
+      uniforms: shader.uniforms,
+      depthWrite: false,
+      side: THREE.BackSide
+
+    });
+
+    var skybox = new THREE.Mesh( new THREE.CubeGeometry( 1000, 1000, 1000 ), material );
+    skybox.flipSided = true;
+    scene.add(skybox);
+
+    basicReflectionMaterial = new THREE.MeshBasicMaterial({
+      color: 0xcccccc,
+      envMap: cubemap,
+      reflectivity: 1,
+      opacity: 0.7,
+      transparent: true
+    });
+
+    phongReflectionMaterial = new THREE.MeshPhongMaterial({
+      color: 0x2194ce,
+      specular: 0x000000,
+      emissive: 0x000000,
+      shininess: 50,
+      opacity: 0.8,
+      transparent: true,
+      envMap: cubemap,
+    });
+
+
 }
 
 function addLights() {
@@ -56,12 +121,12 @@ function addLights() {
   var geometry = new THREE.CylinderGeometry( 15, 15, 2, 32 );
   var material = new THREE.MeshBasicMaterial( { color: 0xffffff } );
   var cylinder = new THREE.Mesh( geometry, material );
-  cylinder.rotation.set(Math.PI/2,0,0);
-  cylinder.position.set( 0, 0, 144 );
+  cylinder.rotation.set(0,0,0);
+  cylinder.position.set( 0, 144, 0 );
   var cylinder2 = cylinder.clone();
-  cylinder2.position.set( 0, 140, 144 );
+  cylinder2.position.set( 0, 144, 140 );
   var cylinder3 = cylinder.clone();
-  cylinder3.position.set( 0, -140, 144 );
+  cylinder3.position.set( 0, 144, -140 );
 
   scene.add( cylinder );
   scene.add( cylinder2 );
@@ -73,13 +138,20 @@ function animate() {
 
     requestAnimationFrame( animate );
 
-    /*pieceMeshes.forEach((pieceMesh) => {
-      pieceMesh.rotation.x += 0.01;
-      pieceMesh.rotation.y += 0.02;
-    });*/
+    pieceMeshes.forEach((pieceMesh) => {
+      //pieceMesh.rotation.x += 0.01;
+      //pieceMesh.rotation.y += 0.02;
+      pieceMesh.material = currentMaterial;
+
+    });
 
     renderer.render( scene, camera );
 
+}
+
+function onPress() {
+  currentMaterialId = (currentMaterialId+1)%3;
+  currentMaterial = materials[currentMaterialId];
 }
 
 function loadModel() {
@@ -87,7 +159,7 @@ function loadModel() {
   var loader = new THREE.JSONLoader();
 
   // load a resource
-  var material = new THREE.MeshPhongMaterial({
+  phongMaterial = new THREE.MeshPhongMaterial({
     color: 0x2194ce,
     specular: 0x000000,
     emissive: 0x000000,
@@ -96,12 +168,16 @@ function loadModel() {
     transparent: true
   });
 
+  currentMaterial = phongMaterial;
+  currentMaterialId = 0;
+  materials = [phongMaterial, basicReflectionMaterial, phongReflectionMaterial];
+
   var pieceModel1 = loader.parse(piecesModel.geometries[0].data);
-  var pieceMesh1 = new THREE.Mesh( pieceModel1.geometry, material );
+  var pieceMesh1 = new THREE.Mesh( pieceModel1.geometry, currentMaterial );
   var pieceModel2 = loader.parse(piecesModel.geometries[1].data);
-  var pieceMesh2 = new THREE.Mesh( pieceModel2.geometry, material );
+  var pieceMesh2 = new THREE.Mesh( pieceModel2.geometry, currentMaterial );
   var pieceModel3 = loader.parse(piecesModel.geometries[2].data);
-  var pieceMesh3 = new THREE.Mesh( pieceModel3.geometry, material );
+  var pieceMesh3 = new THREE.Mesh( pieceModel3.geometry, currentMaterial );
 
   var meshes = [pieceMesh1, pieceMesh2, pieceMesh3];
 
@@ -120,8 +196,8 @@ function loadModel() {
       var mesh = meshes[Math.floor(Math.random()*3)];
       var newPiece = mesh.clone();
       newPiece.position.x += xPos + iStart;
-      newPiece.position.y += yPos + jStart;
-      newPiece.position.z += 10*Math.random()*10;
+      newPiece.position.y += 10*Math.random()*10;
+      newPiece.position.z += yPos + jStart;
       newPiece.rotation.set(Math.random()*90, Math.random()*90, Math.random()*90)
       scene.add( newPiece );
       pieceMeshes.push(newPiece);
