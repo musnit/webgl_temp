@@ -12,12 +12,12 @@ var currentMaterialId;
 var materials;
 
 var urls = [
-      'images/pos-x.png',
-      'images/neg-x.png',
-      'images/pos-y.png',
-      'images/neg-y.png',
-      'images/pos-z.png',
-      'images/neg-z.png'
+      'images/posx.jpg',
+      'images/negx.jpg',
+      'images/posy.jpg',
+      'images/negy.jpg',
+      'images/posz.jpg',
+      'images/negz.jpg'
     ];
 
 
@@ -98,8 +98,18 @@ function init() {
       opacity: 0.8,
       transparent: true,
       envMap: cubemap,
+      reflectivity: 0.9,
+      refractionRatio: 0.98
     });
 
+    phongMaterial = new THREE.MeshPhongMaterial({
+      color: 0x2194ce,
+      specular: 0x000000,
+      emissive: 0x000000,
+      shininess: 50,
+      opacity: 0.8,
+      transparent: true
+    });
 
 }
 
@@ -157,16 +167,6 @@ function onPress() {
 function loadModel() {
   // instantiate a loader
   var loader = new THREE.JSONLoader();
-
-  // load a resource
-  phongMaterial = new THREE.MeshPhongMaterial({
-    color: 0x2194ce,
-    specular: 0x000000,
-    emissive: 0x000000,
-    shininess: 50,
-    opacity: 0.8,
-    transparent: true
-  });
 
   currentMaterial = phongMaterial;
   currentMaterialId = 0;
