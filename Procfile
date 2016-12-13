@@ -1,1 +1,1 @@
-web: webpack && npm startProd
+web: webpack && npm run startProd
