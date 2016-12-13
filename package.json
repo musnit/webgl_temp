@@ -11,8 +11,10 @@
   "license": "ISC",
   "dependencies": {
     "glslify-loader": "^1.0.2",
+    "json-loader": "^0.5.4",
     "raw-loader": "^0.5.1",
-    "three": "^0.82.1"
+    "three": "^0.82.1",
+    "three-orbit-controls": "^82.1.0"
   },
   "devDependencies": {
     "babel-core": "^6.20.0",
