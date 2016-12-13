@@ -11,6 +11,7 @@
   "author": "Aidan Musnitzky",
   "license": "ISC",
   "dependencies": {
+    "babel-core": "^6.20.0",
     "babel-loader": "^6.2.9",
     "express": "^4.14.0",
     "glslify-loader": "^1.0.2",
