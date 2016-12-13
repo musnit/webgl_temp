@@ -5,16 +5,19 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "webpack-dev-server --progress --colors  --content-base build/ --inline"
+    "start": "webpack-dev-server --progress --colors  --content-base build/ --inline",
+    "startProd": "node ./server.js"
   },
   "author": "Aidan Musnitzky",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.14.0",
     "glslify-loader": "^1.0.2",
     "json-loader": "^0.5.4",
     "raw-loader": "^0.5.1",
     "three": "^0.82.1",
-    "three-orbit-controls": "^82.1.0"
+    "three-orbit-controls": "^82.1.0",
+    "webpack": "^1.14.0"
   },
   "devDependencies": {
     "babel-core": "^6.20.0",
