@@ -5,6 +5,7 @@ import { SketchPicker } from 'react-color';
 import * as THREE from 'three';
 
 import Slider from './slider';
+import Texture from './texture';
 
 class DefaultComponent extends React.Component {
   constructor(props) {
@@ -59,6 +60,15 @@ class DefaultComponent extends React.Component {
     this.props.controls.enabled = true;
   }
 
+  toggleRotation() {
+    this.props.controls.autoRotate = !this.props.controls.autoRotate;
+  }
+
+  toggleDisplacementAnimation() {
+    this.props.animations.displacement = !this.props.animations.displacement;
+    this.props.material.displacementScale = 0;
+  }
+
   change(value) {
     return (event) => {
       let stateUpdate = {};
@@ -73,6 +83,9 @@ class DefaultComponent extends React.Component {
       <div className='ui'
         onMouseDown={this.disableControls.bind(this)}
         onMouseUp={this.enableControls.bind(this)} >
+        <div>
+          <button onClick={this.toggleRotation.bind(this)}>Toggle Autorotation</button>
+        </div>
         <div>
           <button onClick={this.toggleColorPicker.bind(this)}>Pick Material Color</button>
         </div>
@@ -100,6 +113,18 @@ class DefaultComponent extends React.Component {
         <Slider value='opacity' material={this.props.material} />
         <Slider value='shininess' max={1000} step={1} material={this.props.material} />
         <Slider value='reflectivity' material={this.props.material} />
+        <Texture value='map' material={this.props.material} />
+        <Texture value='lightMap' material={this.props.material} />
+        <Texture value='emissiveMap' material={this.props.material} />
+        <Texture value='normalMap' material={this.props.material} />
+        <Texture value='bumpMap' defaultValue="images/displacement_2.jpg" material={this.props.material} />
+        <Slider value='bumpScale' material={this.props.material} />
+        <Texture value='displacementMap' defaultValue="images/displacement_2.jpg" material={this.props.material} />
+        <Slider value='displacementScale' material={this.props.material} />
+        <Slider value='displacementBias' material={this.props.material} />
+        <div>
+          <button onClick={this.toggleDisplacementAnimation.bind(this)}>Toggle Displacement Animation</button>
+        </div>
       </div>
     );
   }

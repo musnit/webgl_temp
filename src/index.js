@@ -13,6 +13,9 @@ var geometry, material, mesh;
 var pieceMeshes = [];
 var phongReflectionMaterial;
 var controls;
+var animations = {
+  displacement: false
+};
 
 var urls = [
       'images/posx.jpg',
@@ -29,12 +32,6 @@ window.onload = function() {
   animate();
   loadModel();
 };
-
-window.onkeypress = (event) => {
-  if(event.key === 'Enter'){
-    onPress();
-  }
-}
 
 function init() {
 
@@ -86,20 +83,28 @@ function init() {
     scene.add(skybox);
 
     phongReflectionMaterial = new THREE.MeshPhongMaterial({
-      color: 0xcccccc,
+      color: 0x796565,
       specular: 0x000000,
-      emissive: 0x000000,
+      emissive: 0xAF894A,
       shininess: 250,
       opacity: 1,
       transparent: true,
-      bmap: THREE.ImageUtils.loadTexture('images/amber_texture.jpg'),
+      map: THREE.ImageUtils.loadTexture('images/amber_texture.jpg'),
+      lightMap: THREE.ImageUtils.loadTexture('images/amber_texture.jpg'),
+      emissiveMap: THREE.ImageUtils.loadTexture('images/amber_texture.jpg'),
+      normalMap: THREE.ImageUtils.loadTexture('images/amber_texture.jpg'),
+      bumpMap: THREE.ImageUtils.loadTexture('images/amber_texture.jpg'),
+      bumpScale: 0,
+      displacementMap: THREE.ImageUtils.loadTexture('images/amber_texture.jpg'),
+      displacementScale: 0,
+      displacementBias: 0,
       envMap: cubemap,
-      reflectivity: 0.4,
+      reflectivity: 0.9,
       refractionRatio: 0.98
     });
 
     ReactDOM.render(
-      <UI material={phongReflectionMaterial} controls={controls} />,
+      <UI material={phongReflectionMaterial} controls={controls} animations={animations} />,
       document.getElementById('react-root')
     );
 }
@@ -135,9 +140,26 @@ function addLights() {
 
 }
 
+var direction = 1;
 function animate() {
     requestAnimationFrame( animate );
     controls.update();
+    if (animations.displacement) {
+      var newDisplacementScale;
+      if (direction === 1) {
+        newDisplacementScale = phongReflectionMaterial.displacementScale + 0.05;
+      }
+      else {
+        newDisplacementScale = phongReflectionMaterial.displacementScale - 0.05;
+      }
+      if (newDisplacementScale > 1) {
+        direction = 0;
+      }
+      if (newDisplacementScale < 0) {
+        direction = 1;
+      }
+      phongReflectionMaterial.displacementScale = newDisplacementScale;
+    }
     renderer.render( scene, camera );
 }
 
