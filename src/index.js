@@ -1,15 +1,18 @@
 import * as THREE from 'three';
 var OrbitControls = require('three-orbit-controls')(THREE)
 
+import UI from './ui.js';
+
 import piecesModel from '../models/3_small_pieces.json';
-console.log(piecesModel.geometries);
+
+import React from 'react';
+import ReactDOM from 'react-dom';
+
 var scene, camera, renderer;
 var geometry, material, mesh;
 var pieceMeshes = [];
-var basicReflectionMaterial, phongReflectionMaterial, phongMaterial;
-var currentMaterial;
-var currentMaterialId;
-var materials;
+var phongReflectionMaterial;
+var controls;
 
 var urls = [
       'images/posx.jpg',
@@ -19,7 +22,6 @@ var urls = [
       'images/posz.jpg',
       'images/negz.jpg'
     ];
-
 
 window.onload = function() {
   init();
@@ -41,15 +43,16 @@ function init() {
 
     camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 1, 10000 );
     camera.position.z = 1000;
-    camera.position.set(0, 0, -400)
-    camera.lookAt(new THREE.Vector3())
+    camera.position.set(-301.84525365102866, 50.13329342572092, -257.6355870966525);
+    camera.lookAt(new THREE.Vector3());
 
-    var controls = new OrbitControls(camera)
 
     renderer = new THREE.WebGLRenderer({antialias:true});
     renderer.setSize( window.innerWidth, window.innerHeight );
 
     document.body.appendChild( renderer.domElement );
+    controls = new OrbitControls(camera, renderer.domElement)
+    controls.autoRotate = true;
 
     var geometry = new THREE.BoxBufferGeometry( 200, 10, 400 );
     var material = new THREE.MeshBasicMaterial({ color: 0x7d7d7d });
@@ -82,35 +85,23 @@ function init() {
     skybox.flipSided = true;
     scene.add(skybox);
 
-    basicReflectionMaterial = new THREE.MeshBasicMaterial({
-      color: 0xcccccc,
-      envMap: cubemap,
-      reflectivity: 1,
-      opacity: 0.7,
-      transparent: true
-    });
-
     phongReflectionMaterial = new THREE.MeshPhongMaterial({
-      color: 0x2194ce,
+      color: 0xcccccc,
       specular: 0x000000,
       emissive: 0x000000,
-      shininess: 50,
-      opacity: 0.8,
+      shininess: 250,
+      opacity: 1,
       transparent: true,
+      bmap: THREE.ImageUtils.loadTexture('images/amber_texture.jpg'),
       envMap: cubemap,
-      reflectivity: 0.9,
+      reflectivity: 0.4,
       refractionRatio: 0.98
     });
 
-    phongMaterial = new THREE.MeshPhongMaterial({
-      color: 0x2194ce,
-      specular: 0x000000,
-      emissive: 0x000000,
-      shininess: 50,
-      opacity: 0.8,
-      transparent: true
-    });
-
+    ReactDOM.render(
+      <UI material={phongReflectionMaterial} controls={controls} />,
+      document.getElementById('react-root')
+    );
 }
 
 function addLights() {
@@ -145,39 +136,21 @@ function addLights() {
 }
 
 function animate() {
-
     requestAnimationFrame( animate );
-
-    pieceMeshes.forEach((pieceMesh) => {
-      //pieceMesh.rotation.x += 0.01;
-      //pieceMesh.rotation.y += 0.02;
-      pieceMesh.material = currentMaterial;
-
-    });
-
+    controls.update();
     renderer.render( scene, camera );
-
-}
-
-function onPress() {
-  currentMaterialId = (currentMaterialId+1)%3;
-  currentMaterial = materials[currentMaterialId];
 }
 
 function loadModel() {
   // instantiate a loader
   var loader = new THREE.JSONLoader();
 
-  currentMaterial = phongMaterial;
-  currentMaterialId = 0;
-  materials = [phongMaterial, basicReflectionMaterial, phongReflectionMaterial];
-
   var pieceModel1 = loader.parse(piecesModel.geometries[0].data);
-  var pieceMesh1 = new THREE.Mesh( pieceModel1.geometry, currentMaterial );
+  var pieceMesh1 = new THREE.Mesh( pieceModel1.geometry, phongReflectionMaterial );
   var pieceModel2 = loader.parse(piecesModel.geometries[1].data);
-  var pieceMesh2 = new THREE.Mesh( pieceModel2.geometry, currentMaterial );
+  var pieceMesh2 = new THREE.Mesh( pieceModel2.geometry, phongReflectionMaterial );
   var pieceModel3 = loader.parse(piecesModel.geometries[2].data);
-  var pieceMesh3 = new THREE.Mesh( pieceModel3.geometry, currentMaterial );
+  var pieceMesh3 = new THREE.Mesh( pieceModel3.geometry, phongReflectionMaterial );
 
   var meshes = [pieceMesh1, pieceMesh2, pieceMesh3];
 
@@ -203,13 +176,4 @@ function loadModel() {
       pieceMeshes.push(newPiece);
     }
   }
-
-    /*,
-  	// Function when resource is loaded
-  	function ( geometry, materials ) {
-  		var material = new THREE.MultiMaterial( materials );
-  		var object = new THREE.Mesh( geometry, material );
-  		scene.add( object );
-  	}
-  );*/
 }

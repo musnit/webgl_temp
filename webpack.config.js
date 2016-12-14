@@ -6,7 +6,6 @@ module.exports = {
     },
     module: {
         loaders: [
-            { test: /\.css$/, loader: "style!css" },
             {
               test: /\.js$/,
               exclude: /(node_modules|bower_components)/,
@@ -18,6 +17,7 @@ module.exports = {
             { test: /\.(glsl|frag|vert)$/, loader: 'raw', exclude: /node_modules/ },
             { test: /\.(glsl|frag|vert)$/, loader: 'glslify', exclude: /node_modules/ },
             { test: /\.json$/, loader: 'json', exclude: /node_modules/ },
+            { test: /\.css$/, loader: "style-loader!css-loader" },
             {
               test: /\.(jpe?g|png|gif|svg)$/i,
               loaders: [
