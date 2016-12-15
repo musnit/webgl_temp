@@ -14,11 +14,16 @@ class DefaultComponent extends React.Component {
       showColorPicker: false,
       showEmissivePicker: false,
       showSpecularPicker: false,
+      showPieceLookControls: false,
       opacity: 1,
       color: props.material.color.getHexString(),
       emissive: props.material.emissive.getHexString(),
       specular: props.material.specular.getHexString(),
-      shininess: props.material.shininess
+      shininess: props.material.shininess,
+      iMax: 15,
+      jMax: 25,
+      iBoundsMax: 150,
+      jBoundsMax: 300
     };
   }
 
@@ -69,6 +74,10 @@ class DefaultComponent extends React.Component {
     this.props.material.displacementScale = 0;
   }
 
+  togglePieceLook() {
+    this.setState({ showPieceLookControls: !this.state.showPieceLookControls })
+  }
+
   change(value) {
     return (event) => {
       let stateUpdate = {};
@@ -76,6 +85,13 @@ class DefaultComponent extends React.Component {
       this.setState(stateUpdate);
       this.props.material[value] = event.target.value;
     }
+  }
+
+  redraw() {
+    this.props.pieceMeshes.forEach(mesh => {
+      this.props.scene.remove(mesh);
+    });
+    this.props.redraw(this.state.iMax, this.state.jMax, this.state.iBoundsMax, this.state.jBoundsMax);
   }
 
   render() {
@@ -110,21 +126,30 @@ class DefaultComponent extends React.Component {
             color={ this.state.specular }
             onChange={this.specularChange.bind(this)} />
         </div>}
-        <Slider value='opacity' material={this.props.material} />
-        <Slider value='shininess' max={1000} step={1} material={this.props.material} />
-        <Slider value='reflectivity' material={this.props.material} />
-        <Texture value='map' material={this.props.material} />
-        <Texture value='lightMap' material={this.props.material} />
-        <Texture value='emissiveMap' material={this.props.material} />
-        <Texture value='normalMap' material={this.props.material} />
-        <Texture value='bumpMap' defaultValue="images/displacement_2.jpg" material={this.props.material} />
-        <Slider value='bumpScale' material={this.props.material} />
-        <Texture value='displacementMap' defaultValue="images/displacement_2.jpg" material={this.props.material} />
-        <Slider value='displacementScale' material={this.props.material} />
-        <Slider value='displacementBias' material={this.props.material} />
+        <div>
+          <button onClick={this.togglePieceLook.bind(this)}>Show/Hide controls to modify piece style</button>
+        </div>
+        {this.state.showPieceLookControls && <div>
+          <Slider value='opacity' material={this.props.material} />
+          <Slider value='shininess' max={1000} step={1} material={this.props.material} />
+          <Slider value='reflectivity' material={this.props.material} />
+          <Texture value='map' material={this.props.material} />
+          <Texture value='lightMap' material={this.props.material} />
+          <Texture value='emissiveMap' material={this.props.material} />
+          <Texture value='normalMap' material={this.props.material} />
+          <Texture value='bumpMap' defaultValue="images/displacement_2.jpg" material={this.props.material} />
+          <Slider value='bumpScale' material={this.props.material} />
+          <Texture value='displacementMap' defaultValue="images/displacement_2.jpg" material={this.props.material} />
+          <Slider value='displacementScale' material={this.props.material} />
+          <Slider value='displacementBias' material={this.props.material} />
+        </div>}
         <div>
           <button onClick={this.toggleDisplacementAnimation.bind(this)}>Toggle Displacement Animation</button>
         </div>
+        <Slider max={200} step={1} value='iMax' name='Number pieces along width' material={this.state} updateComponent={this} updateFunc={this.redraw.bind(this)} />
+        <Slider max={200} step={1} value='jMax' name='Number pieces along length' material={this.state} updateComponent={this} updateFunc={this.redraw.bind(this)} />
+        <Slider max={500} step={1} value='iBoundsMax' name='width' material={this.state} updateComponent={this} updateFunc={this.redraw.bind(this)} />
+        <Slider max={500} step={1} value='jBoundsMax' name='length' material={this.state} updateComponent={this} updateFunc={this.redraw.bind(this)} />
       </div>
     );
   }

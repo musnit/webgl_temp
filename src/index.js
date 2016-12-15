@@ -104,7 +104,13 @@ function init() {
     });
 
     ReactDOM.render(
-      <UI material={phongReflectionMaterial} controls={controls} animations={animations} />,
+      <UI
+        scene={scene}
+        material={phongReflectionMaterial}
+        controls={controls}
+        animations={animations}
+        pieceMeshes={pieceMeshes}
+        redraw={loadModel} />,
       document.getElementById('react-root')
     );
 }
@@ -163,7 +169,7 @@ function animate() {
     renderer.render( scene, camera );
 }
 
-function loadModel() {
+function loadModel(iMax = 15, jMax = 25, iBoundsMax = 150, jBoundsMax = 300) {
   // instantiate a loader
   var loader = new THREE.JSONLoader();
 
@@ -178,10 +184,6 @@ function loadModel() {
 
   //i from 0 to 20
   //j from 0 to 40
-  var iMax = 15;
-  var jMax = 25;
-  var iBoundsMax = 150;
-  var jBoundsMax = 300;
   var iStart = -iBoundsMax/2;
   var jStart = -jBoundsMax/2;
   for (var i = 0; i < iMax; i++) {
